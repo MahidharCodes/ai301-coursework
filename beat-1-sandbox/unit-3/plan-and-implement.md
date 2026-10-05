@@ -61,20 +61,19 @@ fields.
 
 **Run history**
 
-[The agreement score of each run you did, in order. A single run is a complete answer if
-only one run occurred. **The last score in your list must match the agreement line in the
-`eval-run.txt` you committed** — that file is the record of your final run.]
-
-**Package analysis**
-
 1. 1/1 (errored out due to Windows cp1252 charmap encoding)
 2. 4/4 (partial run testing packages 1-4 after fixing PYTHONUTF8=1)
 3. 20/20 (final full run, saved to eval-run.txt)
 
-**Check rationale**
+**Package analysis**
 
 `pkg-01`
 My rubric graded this as `reject`, and the gold label was `reject`. It correctly failed the Diagnosis check because the plan identified an unrelated error (wrong cause) instead of the actual root cause shown in the repro evidence.
+
+**Check rationale**
+
+*Scope: "The plan is safely bounded: it explicitly lists the specific components or files that will be changed (in scope) AND explicitly states what related functionalities or files will not be touched (out of scope)."*
+I wrote it this way to ensure strict bounding. A stranger must know exactly what boundaries not to cross to avoid scope creep, which is why naming both what is changing and what is *not* changing is a hard requirement.
 
 **Trade-offs**
 
