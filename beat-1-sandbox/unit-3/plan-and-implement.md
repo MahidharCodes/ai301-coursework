@@ -15,33 +15,44 @@ label is not graded.
 
 **GitHub username**
 
-[Your GitHub username, exactly as it appears on your profile - no @, no
-profile URL. Your comment upstream is identified by this name, and it is
-the only thing that ties it to you. Several students may plan the same
-house issue, so this is what keeps their comments off your score and
-yours off theirs.]
+MahidharCodes
 
 **Plan comment**
 
-[Link to the comment where you posted your plan on the issue. Use the comment's own
-permalink. **Then paste the text of that comment underneath the link** — the pasted text is
-what this field is graded on, so copy across what you actually posted.]
+https://github.com/codepath/pathreview-ai301-fa26-s3/issues/69#issuecomment-5988825624
 
+I've successfully reproduced the issue and dug into the root cause.
+
+The crash happens because _parse_json_output in rag/generator/output_parser.py expects a dictionary and unconditionally calls .items() on the parsed data.
+
+My Plan:
+I'll add a type check inside _parse_json_output to handle list inputs gracefully, mapping the array elements to the expected FeedbackSection format. Then, I will remove the @pytest.mark.xfail marker from the test_json_array_fallback test to ensure it passes cleanly and prevents regressions.
+
+I'll start building this change on a new branch and report back!
 ---
 
 ## Your branch
 
 **Branch**
 
-[The name of the branch you built the change on, exactly as it appears in your fork. The
-naming shape is a type prefix, then the issue number, then a short description. **The issue
-number in the branch name must be the number of the issue you claimed** — a name carrying
-any other number does not satisfy this field.]
+fix/69-json-array-fallback
 
 **Evidence**
 
-[Your Unit 2 reproduction steps re-run against the built change: the before, then the
-after. Paste both, including the commands you ran and their output.]
+Before:
+```
+for key, value in data.items():
+E       AttributeError: 'list' object has no attribute 'items'
+
+rag\generator\output_parser.py:68: AttributeError
+```
+After:
+```
+tests\unit\test_output_parser.py .                                                                                                                                              [100%]
+
+========================================================================== 1 passed, 18 deselected in 0.43s ==========================================================================
+```
+
 
 ## Eval iterations
 
@@ -56,22 +67,18 @@ only one run occurred. **The last score in your list must match the agreement li
 
 **Package analysis**
 
-[Pick one scored package (`pkg-01` through `pkg-20` — the four `calib-` packages are never
-scored). Name it by id, say what your rubric decided and what the gold label said, and
-explain why your rubric read it that way.]
+1. 1/1 (errored out due to Windows cp1252 charmap encoding)
+2. 4/4 (partial run testing packages 1-4 after fixing PYTHONUTF8=1)
+3. 20/20 (final full run, saved to eval-run.txt)
 
 **Check rationale**
 
-[Quote one check from the `rubric.md` you uploaded to `tools/plan-check/`, exactly as it reads now.
-Then say why it reads that way — what you revised to get there, or what you rejected in
-favour of it.]
+`pkg-01`
+My rubric graded this as `reject`, and the gold label was `reject`. It correctly failed the Diagnosis check because the plan identified an unrelated error (wrong cause) instead of the actual root cause shown in the repro evidence.
 
 **Trade-offs**
 
-[Every check gives something up. Any one of these is a complete answer: a package whose
-result it changes, a canary you re-ran with `--only`, a case you accept it will miss, or a
-stated reason nothing changed elsewhere. "Nothing changed, and here is how I know" earns
-the point in full when the reason follows.]
+By strictly requiring an explicit "out of scope" list, my Scope check might reject a generally safe plan that just forgot to name what it isn't touching. I accept this trade-off because I am prioritizing strict safety boundaries over a slightly faster PR process.
 
 ---
 
